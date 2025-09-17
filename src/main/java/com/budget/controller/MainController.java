@@ -26,6 +26,9 @@ public class MainController implements Initializable {
     @FXML private Label totalIncomeLabel;
     @FXML private Label totalExpensesLabel;
     @FXML private Label netIncomeLabel;
+    @FXML private Label totalIncomeValue;
+    @FXML private Label totalExpensesValue;
+    @FXML private Label netIncomeValue;
     
     private final ExpenseDAO expenseDAO;
     private final IncomeDAO incomeDAO;
@@ -87,13 +90,37 @@ public class MainController implements Initializable {
      * Update financial summary in status bar
      */
     private void updateFinancialSummary(FinancialSummary summary) {
+        // Update status bar labels
         totalIncomeLabel.setText(String.format("Total Income: $%.2f", summary.totalIncome.doubleValue()));
         totalExpensesLabel.setText(String.format("Total Expenses: $%.2f", summary.totalExpenses.doubleValue()));
         
         String netText = String.format("Net: $%.2f", summary.netIncome.doubleValue());
         netIncomeLabel.setText(netText);
         
-        // Color code the net income
+        // Update dashboard values if they exist
+        if (totalIncomeValue != null) {
+            totalIncomeValue.setText(String.format("$%.2f", summary.totalIncome.doubleValue()));
+            totalIncomeValue.setStyle("-fx-text-fill: #27ae60;"); // Green for income
+        }
+        
+        if (totalExpensesValue != null) {
+            totalExpensesValue.setText(String.format("$%.2f", summary.totalExpenses.doubleValue()));
+            totalExpensesValue.setStyle("-fx-text-fill: #e74c3c;"); // Red for expenses
+        }
+        
+        if (netIncomeValue != null) {
+            netIncomeValue.setText(String.format("$%.2f", summary.netIncome.doubleValue()));
+            // Color code the net income
+            if (summary.netIncome.compareTo(BigDecimal.ZERO) > 0) {
+                netIncomeValue.setStyle("-fx-text-fill: #27ae60;"); // Green for positive
+            } else if (summary.netIncome.compareTo(BigDecimal.ZERO) < 0) {
+                netIncomeValue.setStyle("-fx-text-fill: #e74c3c;"); // Red for negative
+            } else {
+                netIncomeValue.setStyle("-fx-text-fill: #7f8c8d;"); // Gray for zero
+            }
+        }
+        
+        // Color code the net income in status bar
         if (summary.netIncome.compareTo(BigDecimal.ZERO) > 0) {
             netIncomeLabel.setStyle("-fx-text-fill: #27ae60;"); // Green for positive
         } else if (summary.netIncome.compareTo(BigDecimal.ZERO) < 0) {

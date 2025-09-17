@@ -8,15 +8,15 @@
 <BorderPane xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.budget.controller.MainController">
    <top>
       <!-- Header Section -->
-      <VBox styleClass="header">
+      <VBox>
          <HBox alignment="CENTER_LEFT" spacing="20.0">
-            <Label styleClass="app-title" text="Budget Manager">
+            <Label text="Budget Manager">
                <font>
                   <Font name="System Bold" size="24.0" />
                </font>
             </Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Label fx:id="currentDateLabel" styleClass="date-label" text="Today: ">
+            <Label fx:id="currentDateLabel" text="Today: ">
                <font>
                   <Font size="14.0" />
                </font>
@@ -24,30 +24,74 @@
          </HBox>
          
          <!-- Navigation Tabs -->
-         <TabPane fx:id="mainTabPane" styleClass="main-tabs" tabClosingPolicy="UNAVAILABLE">
-            <Tab styleClass="nav-tab" text="Dashboard">
+         <TabPane fx:id="mainTabPane" tabClosingPolicy="UNAVAILABLE">
+            <Tab text="Dashboard">
                <ScrollPane fitToWidth="true">
-                  <fx:include source="dashboard-view.fxml" />
+                  <VBox>
+                     <Label text="Dashboard View" />
+                     <!-- Simple dashboard content -->
+                     <GridPane hgap="20" vgap="20">
+                        <Label text="Total Income:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <Label fx:id="totalIncomeValue" text="$0.00" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        
+                        <Label text="Total Expenses:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label fx:id="totalExpensesValue" text="$0.00" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        
+                        <Label text="Net Income:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <Label fx:id="netIncomeValue" text="$0.00" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                     </GridPane>
+                  </VBox>
                </ScrollPane>
             </Tab>
-            <Tab styleClass="nav-tab" text="Expenses">
+            
+            <Tab text="Expenses">
                <ScrollPane fitToWidth="true">
-                  <fx:include source="expense-view.fxml" />
+                  <VBox spacing="10">
+                     <Label text="Expense Management" />
+                     <Button text="Add Expense" />
+                     <TableView>
+                        <columns>
+                           <TableColumn text="Date" prefWidth="100" />
+                           <TableColumn text="Category" prefWidth="150" />
+                           <TableColumn text="Description" prefWidth="200" />
+                           <TableColumn text="Amount" prefWidth="100" />
+                        </columns>
+                     </TableView>
+                  </VBox>
                </ScrollPane>
             </Tab>
-            <Tab styleClass="nav-tab" text="Income">
+            
+            <Tab text="Income">
                <ScrollPane fitToWidth="true">
-                  <fx:include source="income-view.fxml" />
+                  <VBox spacing="10">
+                     <Label text="Income Management" />
+                     <Button text="Add Income" />
+                     <TableView>
+                        <columns>
+                           <TableColumn text="Date" prefWidth="100" />
+                           <TableColumn text="Category" prefWidth="150" />
+                           <TableColumn text="Description" prefWidth="200" />
+                           <TableColumn text="Amount" prefWidth="100" />
+                        </columns>
+                     </TableView>
+                  </VBox>
                </ScrollPane>
             </Tab>
-            <Tab styleClass="nav-tab" text="Budgets">
+            
+            <Tab text="Budgets">
                <ScrollPane fitToWidth="true">
-                  <fx:include source="budget-view.fxml" />
-               </ScrollPane>
-            </Tab>
-            <Tab styleClass="nav-tab" text="Charts">
-               <ScrollPane fitToWidth="true">
-                  <fx:include source="charts-view.fxml" />
+                  <VBox spacing="10">
+                     <Label text="Budget Management" />
+                     <Button text="Create Budget" />
+                     <TableView>
+                        <columns>
+                           <TableColumn text="Category" prefWidth="150" />
+                           <TableColumn text="Budget" prefWidth="100" />
+                           <TableColumn text="Spent" prefWidth="100" />
+                           <TableColumn text="Remaining" prefWidth="100" />
+                        </columns>
+                     </TableView>
+                  </VBox>
                </ScrollPane>
             </Tab>
          </TabPane>
@@ -60,7 +104,7 @@
    
    <bottom>
       <!-- Status Bar -->
-      <HBox alignment="CENTER_LEFT" styleClass="status-bar">
+      <HBox alignment="CENTER_LEFT">
          <Label fx:id="statusLabel" text="Ready">
             <font>
                <Font size="12.0" />
