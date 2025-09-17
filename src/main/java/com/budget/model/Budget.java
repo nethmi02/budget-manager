@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 /**
  * Budget model class representing spending limits for categories.
- 
+
  */
 public class Budget {
     
