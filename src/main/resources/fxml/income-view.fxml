@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.budget.controller.IncomeController">
+   
+   <!-- Income Management Header -->
+   <HBox styleClass="card-header">
+      <Label styleClass="card-title" text="Income Management">
+         <font>
+            <Font name="System Bold" size="20.0" />
+         </font>
+      </Label>
+      <Region HBox.hgrow="ALWAYS" />
+      <Button fx:id="addIncomeButton" onAction="#showAddIncomeDialog" styleClass="btn, btn-success" text="Add Income" />
+   </HBox>
+   
+   <!-- Filters -->
+   <HBox spacing="15.0" styleClass="padding-medium">
+      <Label text="Filter by:" />
+      <ComboBox fx:id="categoryFilterComboBox" promptText="All Categories" />
+      <DatePicker fx:id="startDatePicker" promptText="Start Date" />
+      <DatePicker fx:id="endDatePicker" promptText="End Date" />
+      <Button fx:id="filterButton" onAction="#applyFilters" styleClass="btn, btn-secondary" text="Apply Filters" />
+      <Button fx:id="clearFiltersButton" onAction="#clearFilters" styleClass="btn, btn-secondary" text="Clear" />
+   </HBox>
+   
+   <!-- Income Table -->
+   <VBox styleClass="card, padding-medium" VBox.vgrow="ALWAYS">
+      <HBox>
+         <Label styleClass="card-title" text="Income Entries">
+            <font>
+               <Font name="System Bold" size="16.0" />
+            </font>
+         </Label>
+         <Region HBox.hgrow="ALWAYS" />
+         <Label fx:id="totalIncomeLabel" styleClass="text-success" text="Total: $0.00">
+            <font>
+               <Font name="System Bold" size="14.0" />
+            </font>
+         </Label>
+      </HBox>
+      
+      <TableView fx:id="incomeTable" VBox.vgrow="ALWAYS">
+         <columns>
+            <TableColumn fx:id="incomeDateColumn" prefWidth="100.0" text="Date" />
+            <TableColumn fx:id="incomeCategoryColumn" prefWidth="150.0" text="Category" />
+            <TableColumn fx:id="incomeDescriptionColumn" prefWidth="250.0" text="Description" />
+            <TableColumn fx:id="incomeAmountColumn" prefWidth="100.0" text="Amount" />
+            <TableColumn fx:id="incomeActionsColumn" prefWidth="150.0" text="Actions" />
+         </columns>
+      </TableView>
+   </VBox>
+   
+   <padding>
+      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+   </padding>
+</VBox>

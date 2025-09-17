@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.budget.controller.DashboardController">
+   
+   <!-- Dashboard Header -->
+   <HBox styleClass="card-header">
+      <Label styleClass="card-title" text="Financial Dashboard">
+         <font>
+            <Font name="System Bold" size="20.0" />
+         </font>
+      </Label>
+      <Region HBox.hgrow="ALWAYS" />
+      <ComboBox fx:id="periodComboBox" promptText="This Month" />
+   </HBox>
+   
+   <!-- Summary Cards -->
+   <HBox spacing="20.0" styleClass="padding-medium">
+      <VBox styleClass="summary-card" HBox.hgrow="ALWAYS">
+         <Label styleClass="summary-label" text="Total Income" />
+         <Label fx:id="totalIncomeValue" styleClass="summary-value, income-color" text="$0.00">
+            <font>
+               <Font name="System Bold" size="24.0" />
+            </font>
+         </Label>
+      </VBox>
+      
+      <VBox styleClass="summary-card" HBox.hgrow="ALWAYS">
+         <Label styleClass="summary-label" text="Total Expenses" />
+         <Label fx:id="totalExpensesValue" styleClass="summary-value, expense-color" text="$0.00">
+            <font>
+               <Font name="System Bold" size="24.0" />
+            </font>
+         </Label>
+      </VBox>
+      
+      <VBox styleClass="summary-card" HBox.hgrow="ALWAYS">
+         <Label styleClass="summary-label" text="Net Income" />
+         <Label fx:id="netIncomeValue" styleClass="summary-value" text="$0.00">
+            <font>
+               <Font name="System Bold" size="24.0" />
+            </font>
+         </Label>
+      </VBox>
+      
+      <VBox styleClass="summary-card" HBox.hgrow="ALWAYS">
+         <Label styleClass="summary-label" text="Active Budgets" />
+         <Label fx:id="activeBudgetsValue" styleClass="summary-value, budget-color" text="0">
+            <font>
+               <Font name="System Bold" size="24.0" />
+            </font>
+         </Label>
+      </VBox>
+   </HBox>
+   
+   <!-- Recent Transactions -->
+   <VBox styleClass="card, padding-medium" VBox.vgrow="ALWAYS">
+      <Label styleClass="card-title" text="Recent Transactions">
+         <font>
+            <Font name="System Bold" size="16.0" />
+         </font>
+      </Label>
+      
+      <TableView fx:id="recentTransactionsTable" VBox.vgrow="ALWAYS">
+         <columns>
+            <TableColumn fx:id="dateColumn" prefWidth="100.0" text="Date" />
+            <TableColumn fx:id="typeColumn" prefWidth="80.0" text="Type" />
+            <TableColumn fx:id="categoryColumn" prefWidth="150.0" text="Category" />
+            <TableColumn fx:id="descriptionColumn" prefWidth="200.0" text="Description" />
+            <TableColumn fx:id="amountColumn" prefWidth="100.0" text="Amount" />
+         </columns>
+      </TableView>
+   </VBox>
+   
+   <padding>
+      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+   </padding>
+</VBox>

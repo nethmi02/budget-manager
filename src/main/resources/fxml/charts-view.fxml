@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.budget.controller.ChartsController">
+   
+   <!-- Charts Header -->
+   <HBox styleClass="card-header">
+      <Label styleClass="card-title" text="Charts & Analytics">
+         <font>
+            <Font name="System Bold" size="20.0" />
+         </font>
+      </Label>
+      <Region HBox.hgrow="ALWAYS" />
+      <ComboBox fx:id="chartPeriodComboBox" promptText="This Month" />
+   </HBox>
+   
+   <!-- Chart Selection Tabs -->
+   <TabPane fx:id="chartsTabPane" VBox.vgrow="ALWAYS">
+      <Tab text="Expense Breakdown">
+         <VBox styleClass="padding-medium">
+            <Label text="Expenses by Category" styleClass="card-title">
+               <font>
+                  <Font name="System Bold" size="16.0" />
+               </font>
+            </Label>
+            <StackPane fx:id="expenseChartContainer" VBox.vgrow="ALWAYS">
+               <Label text="Chart will be displayed here" />
+            </StackPane>
+         </VBox>
+      </Tab>
+      
+      <Tab text="Income Analysis">
+         <VBox styleClass="padding-medium">
+            <Label text="Income by Source" styleClass="card-title">
+               <font>
+                  <Font name="System Bold" size="16.0" />
+               </font>
+            </Label>
+            <StackPane fx:id="incomeChartContainer" VBox.vgrow="ALWAYS">
+               <Label text="Chart will be displayed here" />
+            </StackPane>
+         </VBox>
+      </Tab>
+      
+      <Tab text="Budget Progress">
+         <VBox styleClass="padding-medium">
+            <Label text="Budget vs Actual Spending" styleClass="card-title">
+               <font>
+                  <Font name="System Bold" size="16.0" />
+               </font>
+            </Label>
+            <StackPane fx:id="budgetChartContainer" VBox.vgrow="ALWAYS">
+               <Label text="Chart will be displayed here" />
+            </StackPane>
+         </VBox>
+      </Tab>
+      
+      <Tab text="Trends">
+         <VBox styleClass="padding-medium">
+            <Label text="Income vs Expenses Over Time" styleClass="card-title">
+               <font>
+                  <Font name="System Bold" size="16.0" />
+               </font>
+            </Label>
+            <StackPane fx:id="trendsChartContainer" VBox.vgrow="ALWAYS">
+               <Label text="Chart will be displayed here" />
+            </StackPane>
+         </VBox>
+      </Tab>
+   </TabPane>
+   
+   <padding>
+      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+   </padding>
+</VBox>

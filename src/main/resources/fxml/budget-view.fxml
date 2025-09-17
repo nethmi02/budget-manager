@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.budget.controller.BudgetController">
+   
+   <!-- Budget Management Header -->
+   <HBox styleClass="card-header">
+      <Label styleClass="card-title" text="Budget Management">
+         <font>
+            <Font name="System Bold" size="20.0" />
+         </font>
+      </Label>
+      <Region HBox.hgrow="ALWAYS" />
+      <Button fx:id="addBudgetButton" onAction="#showAddBudgetDialog" styleClass="btn, btn-warning" text="Create Budget" />
+   </HBox>
+   
+   <!-- Active Budgets -->
+   <VBox styleClass="card, padding-medium">
+      <Label styleClass="card-title" text="Active Budgets">
+         <font>
+            <Font name="System Bold" size="16.0" />
+         </font>
+      </Label>
+      
+      <TableView fx:id="activeBudgetsTable">
+         <columns>
+            <TableColumn fx:id="budgetCategoryColumn" prefWidth="150.0" text="Category" />
+            <TableColumn fx:id="budgetAmountColumn" prefWidth="100.0" text="Budget" />
+            <TableColumn fx:id="budgetSpentColumn" prefWidth="100.0" text="Spent" />
+            <TableColumn fx:id="budgetRemainingColumn" prefWidth="100.0" text="Remaining" />
+            <TableColumn fx:id="budgetProgressColumn" prefWidth="150.0" text="Progress" />
+            <TableColumn fx:id="budgetPeriodColumn" prefWidth="100.0" text="Period" />
+            <TableColumn fx:id="budgetActionsColumn" prefWidth="150.0" text="Actions" />
+         </columns>
+      </TableView>
+   </VBox>
+   
+   <!-- All Budgets -->
+   <VBox styleClass="card, padding-medium" VBox.vgrow="ALWAYS">
+      <Label styleClass="card-title" text="All Budgets">
+         <font>
+            <Font name="System Bold" size="16.0" />
+         </font>
+      </Label>
+      
+      <TableView fx:id="allBudgetsTable" VBox.vgrow="ALWAYS">
+         <columns>
+            <TableColumn fx:id="allBudgetCategoryColumn" prefWidth="150.0" text="Category" />
+            <TableColumn fx:id="allBudgetAmountColumn" prefWidth="100.0" text="Amount" />
+            <TableColumn fx:id="allBudgetPeriodColumn" prefWidth="100.0" text="Period" />
+            <TableColumn fx:id="allBudgetStartDateColumn" prefWidth="100.0" text="Start Date" />
+            <TableColumn fx:id="allBudgetEndDateColumn" prefWidth="100.0" text="End Date" />
+            <TableColumn fx:id="allBudgetStatusColumn" prefWidth="100.0" text="Status" />
+            <TableColumn fx:id="allBudgetActionsColumn" prefWidth="150.0" text="Actions" />
+         </columns>
+      </TableView>
+   </VBox>
+   
+   <padding>
+      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+   </padding>
+</VBox>
