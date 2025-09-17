@@ -22,48 +22,28 @@
    <HBox spacing="20.0" styleClass="padding-medium">
       <VBox styleClass="summary-card" HBox.hgrow="ALWAYS">
          <Label styleClass="summary-label" text="Total Income" />
-         <Label fx:id="totalIncomeValue" styleClass="summary-value, income-color" text="$0.00">
-            <font>
-               <Font name="System Bold" size="24.0" />
-            </font>
-         </Label>
+         <Label fx:id="totalIncomeValue" styleClass="summary-value income-color" text="$0.00" />
       </VBox>
       
       <VBox styleClass="summary-card" HBox.hgrow="ALWAYS">
          <Label styleClass="summary-label" text="Total Expenses" />
-         <Label fx:id="totalExpensesValue" styleClass="summary-value, expense-color" text="$0.00">
-            <font>
-               <Font name="System Bold" size="24.0" />
-            </font>
-         </Label>
+         <Label fx:id="totalExpensesValue" styleClass="summary-value expense-color" text="$0.00" />
       </VBox>
       
       <VBox styleClass="summary-card" HBox.hgrow="ALWAYS">
          <Label styleClass="summary-label" text="Net Income" />
-         <Label fx:id="netIncomeValue" styleClass="summary-value" text="$0.00">
-            <font>
-               <Font name="System Bold" size="24.0" />
-            </font>
-         </Label>
+         <Label fx:id="netIncomeValue" styleClass="summary-value" text="$0.00" />
       </VBox>
       
       <VBox styleClass="summary-card" HBox.hgrow="ALWAYS">
          <Label styleClass="summary-label" text="Active Budgets" />
-         <Label fx:id="activeBudgetsValue" styleClass="summary-value, budget-color" text="0">
-            <font>
-               <Font name="System Bold" size="24.0" />
-            </font>
-         </Label>
+         <Label fx:id="activeBudgetsValue" styleClass="summary-value budget-color" text="0" />
       </VBox>
    </HBox>
    
    <!-- Recent Transactions -->
-   <VBox styleClass="card, padding-medium" VBox.vgrow="ALWAYS">
-      <Label styleClass="card-title" text="Recent Transactions">
-         <font>
-            <Font name="System Bold" size="16.0" />
-         </font>
-      </Label>
+   <VBox styleClass="card padding-medium" VBox.vgrow="ALWAYS">
+      <Label styleClass="card-title" text="Recent Transactions" />
       
       <TableView fx:id="recentTransactionsTable" VBox.vgrow="ALWAYS">
          <columns>

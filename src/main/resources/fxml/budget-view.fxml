@@ -15,11 +15,11 @@
          </font>
       </Label>
       <Region HBox.hgrow="ALWAYS" />
-      <Button fx:id="addBudgetButton" onAction="#showAddBudgetDialog" styleClass="btn, btn-warning" text="Create Budget" />
+      <Button fx:id="addBudgetButton" onAction="#showAddBudgetDialog" styleClass="btn btn-warning" text="Create Budget" />
    </HBox>
    
    <!-- Active Budgets -->
-   <VBox styleClass="card, padding-medium">
+   <VBox styleClass="card padding-medium">
       <Label styleClass="card-title" text="Active Budgets">
          <font>
             <Font name="System Bold" size="16.0" />
@@ -40,7 +40,7 @@
    </VBox>
    
    <!-- All Budgets -->
-   <VBox styleClass="card, padding-medium" VBox.vgrow="ALWAYS">
+   <VBox styleClass="card padding-medium" VBox.vgrow="ALWAYS">
       <Label styleClass="card-title" text="All Budgets">
          <font>
             <Font name="System Bold" size="16.0" />
