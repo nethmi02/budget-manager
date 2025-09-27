@@ -960,9 +960,9 @@ public class AdvancedBudgetApp {
             OutputStream os = exchange.getResponseBody();
             os.write(response.getBytes());
             os.close();
-        }
-        
-        private String generateBudgetsPage() {
+          }
+         
+          private String generateBudgetsPage() {
             List<Budget> budgets = budgetDAO.findAll();
             List<Category> expenseCategories = categoryDAO.findByType(Category.CategoryType.EXPENSE);
             
@@ -1606,6 +1606,19 @@ public class AdvancedBudgetApp {
                     gap: 8px;
                 }
                 
+                .chart-container {
+                    position: relative;
+                    height: 300px;
+                    width: 100%;
+                    margin: 0 auto;
+                }
+                
+                .chart-container canvas {
+                    max-height: 300px !important;
+                    width: 100% !important;
+                    height: auto !important;
+                }
+                
                 .insights-section {
                     background: rgba(255, 255, 255, 0.95);
                     backdrop-filter: blur(20px);
@@ -1780,13 +1793,17 @@ public class AdvancedBudgetApp {
             // Monthly Trend Chart
             html.append("<div class='chart-card'>");
             html.append("<h3 class='chart-title'><i class='fas fa-line-chart'></i> Spending Trends</h3>");
-            html.append("<canvas id='trendChart' width='400' height='200'></canvas>");
+            html.append("<div class='chart-container'>");
+            html.append("<canvas id='trendChart'></canvas>");
+            html.append("</div>");
             html.append("</div>");
             
             // Category Breakdown
             html.append("<div class='chart-card'>");
             html.append("<h3 class='chart-title'><i class='fas fa-pie-chart'></i> Category Breakdown</h3>");
-            html.append("<canvas id='categoryChart' width='400' height='200'></canvas>");
+            html.append("<div class='chart-container'>");
+            html.append("<canvas id='categoryChart'></canvas>");
+            html.append("</div>");
             html.append("</div>");
             
             html.append("</div>");
