@@ -311,6 +311,19 @@ public class AdvancedBudgetApp {
                     color: var(--dark);
                 }
                 
+                .dashboard-chart-container {
+                    position: relative;
+                    height: 250px;
+                    width: 100%;
+                    margin: 0 auto;
+                }
+                
+                .dashboard-chart-container canvas {
+                    max-height: 250px !important;
+                    width: 100% !important;
+                    height: auto !important;
+                }
+                
                 .transactions-section {
                     background: rgba(255, 255, 255, 0.95);
                     backdrop-filter: blur(20px);
@@ -477,7 +490,9 @@ public class AdvancedBudgetApp {
             // Chart Section
             html.append("<div class='chart-section'>");
             html.append("<h2 class='section-title'><i class='fas fa-chart-pie'></i> Spending Overview</h2>");
-            html.append("<canvas id='expenseChart' width='400' height='200'></canvas>");
+            html.append("<div class='dashboard-chart-container'>");
+            html.append("<canvas id='expenseChart'></canvas>");
+            html.append("</div>");
             html.append("</div>");
             
             // Recent Transactions
