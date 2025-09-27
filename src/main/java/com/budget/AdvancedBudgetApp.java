@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +57,7 @@ public class AdvancedBudgetApp {
         server.createContext("/", new ModernDashboardHandler());
         server.createContext("/api/summary", new AdvancedSummaryHandler());
         server.createContext("/api/chart-data", new ChartDataHandler());
+        server.createContext("/transactions", new TransactionsPageHandler());
         server.createContext("/api/transactions", new TransactionsHandler());
         server.createContext("/add-transaction", new AddTransactionHandler());
         server.createContext("/budgets", new BudgetsPageHandler());
@@ -401,6 +403,9 @@ public class AdvancedBudgetApp {
             html.append("</a>");
             html.append("<a href='/budgets' class='btn btn-outline'>");
             html.append("<i class='fas fa-bullseye'></i> Budgets");
+            html.append("</a>");
+            html.append("<a href='/transactions' class='btn btn-outline'>");
+            html.append("<i class='fas fa-list'></i> Transactions");
             html.append("</a>");
             html.append("</div>");
             html.append("</div>");
@@ -1918,6 +1923,684 @@ public class AdvancedBudgetApp {
         }
     }
     
+    static class TransactionsPageHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            String response = generateTransactionsPage(exchange);
+            exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
+            exchange.sendResponseHeaders(200, response.getBytes().length);
+            OutputStream os = exchange.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
+        }
+        
+        private String generateTransactionsPage(HttpExchange exchange) {
+            // Parse query parameters for filtering
+            String query = exchange.getRequestURI().getQuery();
+            Map<String, String> params = parseQueryParams(query != null ? query : "");
+            
+            String searchTerm = params.getOrDefault("search", "");
+            String categoryFilter = params.getOrDefault("category", "");
+            String typeFilter = params.getOrDefault("type", "");
+            String dateFrom = params.getOrDefault("dateFrom", "");
+            String dateTo = params.getOrDefault("dateTo", "");
+            
+            // Get filtered data
+            List<Expense> expenses = expenseDAO.findAll();
+            List<Income> incomes = incomeDAO.findAll();
+            List<Category> categories = categoryDAO.findAll();
+            
+            // Apply filters
+            expenses = filterExpenses(expenses, searchTerm, categoryFilter, dateFrom, dateTo);
+            incomes = filterIncomes(incomes, searchTerm, categoryFilter, dateFrom, dateTo);
+            
+            StringBuilder html = new StringBuilder();
+            html.append("<!DOCTYPE html>");
+            html.append("<html lang='en'><head>");
+            html.append("<meta charset='UTF-8'>");
+            html.append("<meta name='viewport' content='width=device-width, initial-scale=1.0'>");
+            html.append("<title>📋 Transaction Management - Advanced Budget Manager</title>");
+            html.append("<link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css' rel='stylesheet'>");
+            html.append("<style>");
+            
+            // Advanced CSS for transaction management
+            html.append("""
+                :root {
+                    --primary: #667eea;
+                    --success: #10b981;
+                    --danger: #ef4444;
+                    --warning: #f59e0b;
+                    --info: #3b82f6;
+                    --dark: #1e293b;
+                    --gray: #64748b;
+                    --gray-light: #f1f5f9;
+                    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                    --border-radius: 12px;
+                }
+                
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                
+                body {
+                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    min-height: 100vh;
+                    color: var(--dark);
+                    line-height: 1.6;
+                }
+                
+                .container {
+                    max-width: 1400px;
+                    margin: 0 auto;
+                    padding: 20px;
+                }
+                
+                .header {
+                    background: rgba(255, 255, 255, 0.95);
+                    backdrop-filter: blur(20px);
+                    border-radius: var(--border-radius);
+                    padding: 20px 30px;
+                    margin-bottom: 30px;
+                    box-shadow: var(--shadow);
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                
+                .page-title {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: var(--primary);
+                }
+                
+                .back-btn {
+                    background: var(--gray);
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    text-decoration: none;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.2s;
+                }
+                
+                .back-btn:hover {
+                    background: var(--dark);
+                    transform: translateY(-1px);
+                }
+                
+                .filters-section {
+                    background: rgba(255, 255, 255, 0.95);
+                    backdrop-filter: blur(20px);
+                    border-radius: var(--border-radius);
+                    padding: 24px;
+                    box-shadow: var(--shadow);
+                    margin-bottom: 30px;
+                }
+                
+                .filters-title {
+                    font-size: 18px;
+                    font-weight: 700;
+                    margin-bottom: 20px;
+                    color: var(--dark);
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                
+                .filters-grid {
+                    display: grid;
+                    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+                    gap: 16px;
+                    margin-bottom: 20px;
+                }
+                
+                .filter-group {
+                    display: flex;
+                    flex-direction: column;
+                }
+                
+                .filter-label {
+                    font-weight: 600;
+                    margin-bottom: 6px;
+                    color: var(--dark);
+                    font-size: 14px;
+                }
+                
+                .filter-input, .filter-select {
+                    padding: 10px 12px;
+                    border: 2px solid var(--gray-light);
+                    border-radius: 8px;
+                    font-size: 14px;
+                    transition: border-color 0.2s;
+                }
+                
+                .filter-input:focus, .filter-select:focus {
+                    outline: none;
+                    border-color: var(--primary);
+                }
+                
+                .filter-actions {
+                    display: flex;
+                    gap: 12px;
+                    flex-wrap: wrap;
+                }
+                
+                .btn {
+                    padding: 10px 20px;
+                    border: none;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    text-decoration: none;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-size: 14px;
+                }
+                
+                .btn-primary {
+                    background: var(--primary);
+                    color: white;
+                }
+                
+                .btn-secondary {
+                    background: var(--gray-light);
+                    color: var(--gray);
+                }
+                
+                .btn:hover {
+                    transform: translateY(-1px);
+                }
+                
+                .stats-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 20px;
+                    margin-bottom: 30px;
+                }
+                
+                .stat-card {
+                    background: rgba(255, 255, 255, 0.95);
+                    backdrop-filter: blur(20px);
+                    border-radius: var(--border-radius);
+                    padding: 20px;
+                    box-shadow: var(--shadow);
+                    text-align: center;
+                }
+                
+                .stat-icon {
+                    width: 50px;
+                    height: 50px;
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 12px;
+                    font-size: 20px;
+                }
+                
+                .stat-value {
+                    font-size: 24px;
+                    font-weight: 700;
+                    margin-bottom: 4px;
+                }
+                
+                .stat-label {
+                    color: var(--gray);
+                    font-size: 14px;
+                }
+                
+                .transactions-section {
+                    background: rgba(255, 255, 255, 0.95);
+                    backdrop-filter: blur(20px);
+                    border-radius: var(--border-radius);
+                    padding: 24px;
+                    box-shadow: var(--shadow);
+                }
+                
+                .section-title {
+                    font-size: 18px;
+                    font-weight: 700;
+                    margin-bottom: 20px;
+                    color: var(--dark);
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                }
+                
+                .transaction-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-bottom: 20px;
+                }
+                
+                .transaction-table th {
+                    background: var(--gray-light);
+                    padding: 12px 16px;
+                    text-align: left;
+                    font-weight: 600;
+                    color: var(--dark);
+                    border-bottom: 2px solid var(--gray-light);
+                }
+                
+                .transaction-table td {
+                    padding: 12px 16px;
+                    border-bottom: 1px solid var(--gray-light);
+                    vertical-align: middle;
+                }
+                
+                .transaction-row:hover {
+                    background: rgba(103, 126, 234, 0.05);
+                }
+                
+                .transaction-type {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 4px 8px;
+                    border-radius: 20px;
+                    font-size: 12px;
+                    font-weight: 600;
+                }
+                
+                .transaction-type.income {
+                    background: rgba(16, 185, 129, 0.1);
+                    color: var(--success);
+                }
+                
+                .transaction-type.expense {
+                    background: rgba(239, 68, 68, 0.1);
+                    color: var(--danger);
+                }
+                
+                .transaction-amount {
+                    font-weight: 600;
+                    font-size: 16px;
+                }
+                
+                .transaction-amount.income {
+                    color: var(--success);
+                }
+                
+                .transaction-amount.expense {
+                    color: var(--danger);
+                }
+                
+                .transaction-category {
+                    background: var(--gray-light);
+                    color: var(--gray);
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    font-weight: 500;
+                }
+                
+                .empty-state {
+                    text-align: center;
+                    padding: 60px 20px;
+                    color: var(--gray);
+                }
+                
+                .empty-state i {
+                    font-size: 64px;
+                    margin-bottom: 20px;
+                    opacity: 0.3;
+                }
+                
+                @media (max-width: 768px) {
+                    .filters-grid {
+                        grid-template-columns: 1fr;
+                    }
+                    
+                    .transaction-table {
+                        font-size: 14px;
+                    }
+                    
+                    .transaction-table th,
+                    .transaction-table td {
+                        padding: 8px 12px;
+                    }
+                    
+                    .header {
+                        flex-direction: column;
+                        gap: 20px;
+                        text-align: center;
+                    }
+                }
+                """);
+            
+            html.append("</style></head><body>");
+            
+            html.append("<div class='container'>");
+            
+            // Header
+            html.append("<div class='header'>");
+            html.append("<div class='page-title'>");
+            html.append("<i class='fas fa-list'></i>");
+            html.append("Transaction Management");
+            html.append("</div>");
+            html.append("<a href='/' class='back-btn'>");
+            html.append("<i class='fas fa-arrow-left'></i> Back to Dashboard");
+            html.append("</a>");
+            html.append("</div>");
+            
+            // Statistics Cards
+            html.append("<div class='stats-grid'>");
+            
+            int totalTransactions = expenses.size() + incomes.size();
+            BigDecimal totalExpenseAmount = expenses.stream()
+                .map(Expense::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal totalIncomeAmount = incomes.stream()
+                .map(Income::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            // Total Transactions
+            html.append("<div class='stat-card'>");
+            html.append("<div class='stat-icon' style='background: rgba(59, 130, 246, 0.1); color: var(--info);'>");
+            html.append("<i class='fas fa-list'></i>");
+            html.append("</div>");
+            html.append("<div class='stat-value'>").append(totalTransactions).append("</div>");
+            html.append("<div class='stat-label'>Total Transactions</div>");
+            html.append("</div>");
+            
+            // Total Income
+            html.append("<div class='stat-card'>");
+            html.append("<div class='stat-icon' style='background: rgba(16, 185, 129, 0.1); color: var(--success);'>");
+            html.append("<i class='fas fa-arrow-up'></i>");
+            html.append("</div>");
+            html.append("<div class='stat-value'>$").append(String.format("%.2f", totalIncomeAmount.doubleValue())).append("</div>");
+            html.append("<div class='stat-label'>Total Income</div>");
+            html.append("</div>");
+            
+            // Total Expenses
+            html.append("<div class='stat-card'>");
+            html.append("<div class='stat-icon' style='background: rgba(239, 68, 68, 0.1); color: var(--danger);'>");
+            html.append("<i class='fas fa-arrow-down'></i>");
+            html.append("</div>");
+            html.append("<div class='stat-value'>$").append(String.format("%.2f", totalExpenseAmount.doubleValue())).append("</div>");
+            html.append("<div class='stat-label'>Total Expenses</div>");
+            html.append("</div>");
+            
+            // Net Balance
+            BigDecimal netBalance = totalIncomeAmount.subtract(totalExpenseAmount);
+            html.append("<div class='stat-card'>");
+            html.append("<div class='stat-icon' style='background: rgba(245, 158, 11, 0.1); color: var(--warning);'>");
+            html.append("<i class='fas fa-balance-scale'></i>");
+            html.append("</div>");
+            html.append("<div class='stat-value'>$").append(String.format("%.2f", netBalance.doubleValue())).append("</div>");
+            html.append("<div class='stat-label'>Net Balance</div>");
+            html.append("</div>");
+            
+            html.append("</div>");
+            
+            // Filters Section
+            html.append("<div class='filters-section'>");
+            html.append("<h3 class='filters-title'><i class='fas fa-filter'></i> Search & Filter</h3>");
+            html.append("<form method='GET'>");
+            html.append("<div class='filters-grid'>");
+            
+            html.append("<div class='filter-group'>");
+            html.append("<label class='filter-label'>Search</label>");
+            html.append("<input type='text' name='search' class='filter-input' placeholder='Search by description...' value='").append(searchTerm).append("'>");
+            html.append("</div>");
+            
+            html.append("<div class='filter-group'>");
+            html.append("<label class='filter-label'>Category</label>");
+            html.append("<select name='category' class='filter-select'>");
+            html.append("<option value=''>All Categories</option>");
+            for (Category category : categories) {
+                String selected = category.getId() == Integer.parseInt(categoryFilter.isEmpty() ? "0" : categoryFilter) ? " selected" : "";
+                html.append("<option value='").append(category.getId()).append("'").append(selected).append(">");
+                html.append(category.getName()).append("</option>");
+            }
+            html.append("</select>");
+            html.append("</div>");
+            
+            html.append("<div class='filter-group'>");
+            html.append("<label class='filter-label'>Type</label>");
+            html.append("<select name='type' class='filter-select'>");
+            html.append("<option value=''").append(typeFilter.isEmpty() ? " selected" : "").append(">All Types</option>");
+            html.append("<option value='income'").append("income".equals(typeFilter) ? " selected" : "").append(">Income</option>");
+            html.append("<option value='expense'").append("expense".equals(typeFilter) ? " selected" : "").append(">Expenses</option>");
+            html.append("</select>");
+            html.append("</div>");
+            
+            html.append("<div class='filter-group'>");
+            html.append("<label class='filter-label'>From Date</label>");
+            html.append("<input type='date' name='dateFrom' class='filter-input' value='").append(dateFrom).append("'>");
+            html.append("</div>");
+            
+            html.append("<div class='filter-group'>");
+            html.append("<label class='filter-label'>To Date</label>");
+            html.append("<input type='date' name='dateTo' class='filter-input' value='").append(dateTo).append("'>");
+            html.append("</div>");
+            
+            html.append("</div>");
+            
+            html.append("<div class='filter-actions'>");
+            html.append("<button type='submit' class='btn btn-primary'>");
+            html.append("<i class='fas fa-search'></i> Apply Filters");
+            html.append("</button>");
+            html.append("<a href='/transactions' class='btn btn-secondary'>");
+            html.append("<i class='fas fa-times'></i> Clear Filters");
+            html.append("</a>");
+            html.append("</div>");
+            
+            html.append("</form>");
+            html.append("</div>");
+            
+            // Transactions Table
+            html.append("<div class='transactions-section'>");
+            html.append("<div class='section-title'>");
+            html.append("<span><i class='fas fa-table'></i> All Transactions</span>");
+            html.append("<span>").append(totalTransactions).append(" Results</span>");
+            html.append("</div>");
+            
+            if (totalTransactions == 0) {
+                html.append("<div class='empty-state'>");
+                html.append("<i class='fas fa-inbox'></i>");
+                html.append("<h3>No Transactions Found</h3>");
+                html.append("<p>No transactions match your current filters. Try adjusting your search criteria.</p>");
+                html.append("</div>");
+            } else {
+                html.append("<table class='transaction-table'>");
+                html.append("<thead>");
+                html.append("<tr>");
+                html.append("<th>Date</th>");
+                html.append("<th>Type</th>");
+                html.append("<th>Description</th>");
+                html.append("<th>Category</th>");
+                html.append("<th>Amount</th>");
+                html.append("</tr>");
+                html.append("</thead>");
+                html.append("<tbody>");
+                
+                // Combine and sort transactions
+                List<TransactionItem> allTransactions = new ArrayList<>();
+                
+                for (Expense expense : expenses) {
+                    Category category = categories.stream()
+                        .filter(c -> c.getId() == expense.getCategoryId())
+                        .findFirst().orElse(null);
+                    
+                    allTransactions.add(new TransactionItem(
+                        expense.getExpenseDate(),
+                        "expense",
+                        expense.getDescription(),
+                        category != null ? category.getName() : "Unknown",
+                        expense.getAmount()
+                    ));
+                }
+                
+                for (Income income : incomes) {
+                    Category category = categories.stream()
+                        .filter(c -> c.getId() == income.getCategoryId())
+                        .findFirst().orElse(null);
+                    
+                    allTransactions.add(new TransactionItem(
+                        income.getIncomeDate(),
+                        "income",
+                        income.getDescription(),
+                        category != null ? category.getName() : "Unknown",
+                        income.getAmount()
+                    ));
+                }
+                
+                // Sort by date (newest first)
+                allTransactions.sort((a, b) -> b.date.compareTo(a.date));
+                
+                // Apply type filter
+                if (!typeFilter.isEmpty()) {
+                    allTransactions = allTransactions.stream()
+                        .filter(t -> t.type.equals(typeFilter))
+                        .collect(java.util.stream.Collectors.toList());
+                }
+                
+                for (TransactionItem transaction : allTransactions) {
+                    html.append("<tr class='transaction-row'>");
+                    html.append("<td>").append(transaction.date.toString()).append("</td>");
+                    
+                    html.append("<td>");
+                    html.append("<span class='transaction-type ").append(transaction.type).append("'>");
+                    html.append("<i class='fas fa-").append(transaction.type.equals("income") ? "arrow-up" : "arrow-down").append("'></i>");
+                    html.append(transaction.type.substring(0, 1).toUpperCase() + transaction.type.substring(1));
+                    html.append("</span>");
+                    html.append("</td>");
+                    
+                    html.append("<td>").append(transaction.description).append("</td>");
+                    html.append("<td><span class='transaction-category'>").append(transaction.category).append("</span></td>");
+                    
+                    html.append("<td>");
+                    html.append("<span class='transaction-amount ").append(transaction.type).append("'>");
+                    html.append(transaction.type.equals("income") ? "+$" : "-$");
+                    html.append(String.format("%.2f", transaction.amount.doubleValue()));
+                    html.append("</span>");
+                    html.append("</td>");
+                    
+                    html.append("</tr>");
+                }
+                
+                html.append("</tbody>");
+                html.append("</table>");
+            }
+            
+            html.append("</div>");
+            html.append("</div>");
+            html.append("</body></html>");
+            
+            return html.toString();
+        }
+        
+        private List<Expense> filterExpenses(List<Expense> expenses, String searchTerm, String categoryFilter, String dateFrom, String dateTo) {
+            return expenses.stream()
+                .filter(expense -> {
+                    // Search filter
+                    if (!searchTerm.isEmpty() && !expense.getDescription().toLowerCase().contains(searchTerm.toLowerCase())) {
+                        return false;
+                    }
+                    
+                    // Category filter
+                    if (!categoryFilter.isEmpty() && expense.getCategoryId() != Integer.parseInt(categoryFilter)) {
+                        return false;
+                    }
+                    
+                    // Date range filter
+                    if (!dateFrom.isEmpty()) {
+                        LocalDate fromDate = LocalDate.parse(dateFrom);
+                        if (expense.getExpenseDate().isBefore(fromDate)) {
+                            return false;
+                        }
+                    }
+                    
+                    if (!dateTo.isEmpty()) {
+                        LocalDate toDate = LocalDate.parse(dateTo);
+                        if (expense.getExpenseDate().isAfter(toDate)) {
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                })
+                .collect(java.util.stream.Collectors.toList());
+        }
+        
+        private List<Income> filterIncomes(List<Income> incomes, String searchTerm, String categoryFilter, String dateFrom, String dateTo) {
+            return incomes.stream()
+                .filter(income -> {
+                    // Search filter
+                    if (!searchTerm.isEmpty() && !income.getDescription().toLowerCase().contains(searchTerm.toLowerCase())) {
+                        return false;
+                    }
+                    
+                    // Category filter
+                    if (!categoryFilter.isEmpty() && income.getCategoryId() != Integer.parseInt(categoryFilter)) {
+                        return false;
+                    }
+                    
+                    // Date range filter
+                    if (!dateFrom.isEmpty()) {
+                        LocalDate fromDate = LocalDate.parse(dateFrom);
+                        if (income.getIncomeDate().isBefore(fromDate)) {
+                            return false;
+                        }
+                    }
+                    
+                    if (!dateTo.isEmpty()) {
+                        LocalDate toDate = LocalDate.parse(dateTo);
+                        if (income.getIncomeDate().isAfter(toDate)) {
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                })
+                .collect(java.util.stream.Collectors.toList());
+        }
+        
+        private Map<String, String> parseQueryParams(String query) {
+            Map<String, String> params = new HashMap<>();
+            if (query.isEmpty()) return params;
+            
+            String[] pairs = query.split("&");
+            for (String pair : pairs) {
+                String[] keyValue = pair.split("=", 2);
+                if (keyValue.length == 2) {
+                    try {
+                        String key = java.net.URLDecoder.decode(keyValue[0], StandardCharsets.UTF_8);
+                        String value = java.net.URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8);
+                        params.put(key, value);
+                    } catch (Exception e) {
+                        // Skip malformed parameters
+                    }
+                }
+            }
+            return params;
+        }
+        
+        // Helper class for combined transaction display
+        private static class TransactionItem {
+            LocalDate date;
+            String type;
+            String description;
+            String category;
+            BigDecimal amount;
+            
+            TransactionItem(LocalDate date, String type, String description, String category, BigDecimal amount) {
+                this.date = date;
+                this.type = type;
+                this.description = description;
+                this.category = category;
+                this.amount = amount;
+            }
+        }
+    }
+
     static class MonthlyDataHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
